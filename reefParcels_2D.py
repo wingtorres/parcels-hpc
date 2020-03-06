@@ -25,8 +25,8 @@ grid = xgcm.Grid(ds, coords=coords)
 ds['ubar_lagrangian'] = ds['ubar'] + ds['ubar_stokes']
 ds['vbar_lagrangian'] = ds['vbar'] + ds['vbar_stokes']
 
-ds['ubar_lagrangian_psi'] = grid.interp(ds.u_lagrangian, 'eta')
-ds['vbar_lagrangian_psi'] = grid.interp(ds.v_lagrangian, 'xi')
+ds['ubar_lagrangian_psi'] = grid.interp(ds.ubar_lagrangian, 'eta')
+ds['vbar_lagrangian_psi'] = grid.interp(ds.vbar_lagrangian, 'xi')
 
 dimensions = {'lon': x, 'lat': y, 'time': t }
 fieldset = FieldSet.from_data(data, dimensions, transpose = False, mesh = 'flat') 
