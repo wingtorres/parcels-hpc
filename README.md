@@ -49,8 +49,8 @@ grid = xgcm.Grid(ds, coords=coords)
 ds['ubar_lagrangian'] = ds['ubar'] + ds['ubar_stokes']
 ds['vbar_lagrangian'] = ds['vbar'] + ds['vbar_stokes']
 
-ds['ubar_lagrangian_psi'] = grid.interp(ds.u_lagrangian, 'eta')
-ds['vbar_lagrangian_psi'] = grid.interp(ds.v_lagrangian, 'xi')
+ds['ubar_lagrangian_psi'] = grid.interp(ds.ubar_lagrangian, 'eta')
+ds['vbar_lagrangian_psi'] = grid.interp(ds.vbar_lagrangian, 'xi')
 ```
 
 5) Define a Parcels [Fieldset](http://oceanparcels.org/gh-pages/html/#module-parcels.fieldset) from the lagrangian velocity field and horizontal coordinates of ψ points. Even if the grid is in meters, the dimensions must be named 'lon' and 'lat' for consistency.
