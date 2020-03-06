@@ -1,8 +1,8 @@
 ## Miniconda
-First a python distribution must be installed. I found it best to use Miniconda, a lightweight version of Anaconda's python distribution with just conda and its dependncies, which was straightforward to set up following the excellent [guide](https://medium.com/@rabernat/custom-conda-environments-for-data-science-on-hpc-clusters-32d58c63aa95) by @rabernat. Instead of using his example environment.yml, I've provided a parcels.yml file in this repository that will create an environment for Parcels along with some useful dependencies.
+First a python distribution must be installed. I found it best to use Miniconda, a lightweight version of Anaconda's python distribution with just conda and its dependencies, which was straightforward to set up following the excellent [guide](https://medium.com/@rabernat/custom-conda-environments-for-data-science-on-hpc-clusters-32d58c63aa95) by @rabernat. Instead of using his example environment.yml, I've provided a parcels.yml file in this repository that will create an environment for Parcels along with some useful dependencies.
 
 ## The Parcels python script
-This script must convert output files from ROMS into a Parcels Fieldset, initialize the location and timing of particles to be released, and of course execute the integration itself. I use the packages [xarray](http://xarray.pydata.org/en/stable/) and [xgcm](https://xgcm.readthedocs.io/en/latest/) to facilitate reading netCDF data and interpolation on a structured grid.
+This script must convert output files from ROMS into a Parcels [Fieldset](http://oceanparcels.org/gh-pages/html/#module-parcels.fieldset), initialize the location and timing of particles to be released through Parcels' [Particleset](http://oceanparcels.org/gh-pages/html/#module-parcels.particleset) module, and of course execute the integration itself. I use the packages [xarray](http://xarray.pydata.org/en/stable/) and [xgcm](https://xgcm.readthedocs.io/en/latest/) to facilitate reading netCDF data and interpolation on a structured grid.
 
 1) Import packages
 
@@ -32,7 +32,7 @@ where chunk size can be adjusted to improve performance. From the xarray [docs](
 3) Create an xgcm grid object to facilitate interpolation
 
 ```
-#non-redundant dims: xi_rho (outer), eta_rho (outer), xi_psi (inner), eta_psi (inner)
+#non-redundant dims: xi_rho (center), eta_rho (center), xi_u (inner), eta_v (inner)
 ds = ds.rename({'eta_u': 'eta_rho', 'xi_v': 'xi_rho', 'xi_psi': 'xi_u', 'eta_psi': 'eta_v'})
 
 coords={'xi':{'center':'xi_rho', 'inner':'xi_u'}, 
@@ -88,8 +88,8 @@ output_file.close()
 ```
 
 ## Submitting a Parcels job
-I have provided a sample .pbs script in this repository that runs the python script described above on the HPC resource with the command
+I have provided a sample .pbs script in this repository that activates the Parcels python environment and runs the python script described above on the HPC resource with the command
 ```
 qsub parcels.pbs
 ``` 
-Make sure the allocation name, paths to the error and output files, email, and script location match your configuration.
+Make sure the environment name, allocation, paths to the error and output files, email, and script location match your configuration.
