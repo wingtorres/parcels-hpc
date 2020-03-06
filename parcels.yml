@@ -1,0 +1,12 @@
+name: parcels_mpi
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.6
+  - parcels
+  - mpi4py
+  - mpich
+  - scikit-learn
+  - dask
+
