@@ -14,9 +14,7 @@ from datetime import timedelta as delta
 from parcels import AdvectionRK4, ErrorCode, FieldSet, JITParticle, ParticleFile, ParticleSet
 ```
 
-2) Load in multiple netcdf files as an xarray dataset. The chunk size can be adjusted to improve performance - from the xarray [docs](http://xarray.pydata.org/en/stable/dask.html#chunking-and-performance)
-> A good rule of thumb is to create arrays with a minimum chunksize of at least one million elements (e.g., a 1000x1000 matrix).
-
+2) Load in multiple netcdf files as an xarray dataset
 ```
 filenames =  "/work/wtorres/particles/*nc"
 ds = xr.open_mfdataset(filenames, chunks={'ocean_time': 12}, combine="by_coords", parallel=True, decode_times = False)
@@ -25,6 +23,8 @@ x = ds['x_psi'].values
 y = ds['y_psi'].values
 t = ds['ocean_time'].values
 ```
+where chunk size can be adjusted to improve performance. From the xarray [docs](http://xarray.pydata.org/en/stable/dask.html#chunking-and-performance)...
+> A good rule of thumb is to create arrays with a minimum chunksize of at least one million elements (e.g., a 1000x1000 matrix).
 
 2.5) Create an xgcm grid object to facilitate interpolation
 ```
