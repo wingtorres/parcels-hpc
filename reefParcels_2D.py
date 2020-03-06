@@ -6,7 +6,7 @@ from datetime import timedelta as delta
 from parcels import AdvectionRK4, ErrorCode, FieldSet, JITParticle, ParticleFile, ParticleSet
 
 filenames =  "/work/wtorres/particles/*nc"
-Ds = xr.open_mfdataset(filenames, chunks={'ocean_time': 12}, combine="by_coords", parallel=True, decode_times = False)
+ds = xr.open_mfdataset(filenames, chunks={'ocean_time': 12}, combine="by_coords", parallel=True, decode_times = False)
 
 x = Ds['x_psi'].values
 y = Ds['y_psi'].values
