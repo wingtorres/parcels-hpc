@@ -32,7 +32,7 @@ where chunk size can be adjusted to improve performance. From the xarray [docs](
 3) Create an xgcm grid object to facilitate interpolation
 
 ```
-#non-redundant dims: xi_rho (outer), eta_rho (outer), xi_psi (inner), eta_psi (inner)
+#non-redundant dims: xi_rho (center), eta_rho (center), xi_u (inner), eta_v (inner)
 ds = ds.rename({'eta_u': 'eta_rho', 'xi_v': 'xi_rho', 'xi_psi': 'xi_u', 'eta_psi': 'eta_v'})
 
 coords={'xi':{'center':'xi_rho', 'inner':'xi_u'}, 
