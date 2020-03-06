@@ -28,7 +28,7 @@ ds['vbar_lagrangian'] = ds['vbar'] + ds['vbar_stokes']
 ds['ubar_lagrangian_psi'] = grid.interp(ds.ubar_lagrangian, 'eta')
 ds['vbar_lagrangian_psi'] = grid.interp(ds.vbar_lagrangian, 'xi')
 
-data = {'U': da.ubar_lagrangian_psi.values, 'V': ds.vbar_lagrangian_psi.values}
+data = {'U': ds.ubar_lagrangian_psi.values, 'V': ds.vbar_lagrangian_psi.values}
 dimensions = {'lon': x, 'lat': y, 'time': t }
 fieldset = FieldSet.from_data(data, dimensions, transpose = False, mesh = 'flat') 
 
