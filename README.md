@@ -88,8 +88,8 @@ output_file.close()
 ```
 
 ## Submitting a Parcels job
-I have provided a sample .pbs script in this repository that runs the python script described above on the HPC resource with the command
+I have provided a sample .pbs script in this repository that activates the Parcels python environment and runs the python script described above on the HPC resource with the command
 ```
 qsub parcels.pbs
 ``` 
-Make sure the allocation name, paths to the error and output files, email, and script location match your configuration.
+Make sure the environment name, allocation, paths to the error and output files, email, and script location match your configuration.
