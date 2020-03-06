@@ -1,5 +1,3 @@
-# Using Parcels with ROMS on HPC 
-
 ## Miniconda
 First a python distribution must be installed. I found it best to use Miniconda, a lightweight version of Anaconda's python distribution with the bare necessities, which was straightforward to set up following the excellent [guide](https://medium.com/@rabernat/custom-conda-environments-for-data-science-on-hpc-clusters-32d58c63aa95) by @rabernat. Instead of using his example environment.yml, I've provided a parcels.yml file in this repository that will create an environment for Parcels along with some useful dependencies.
 
@@ -84,4 +82,8 @@ output_file.close()
 ```
 
 ## Submitting a Parcels job
-I have provided a sample .pbs script in this repository that runs the python script described above in mpirun. Make sure the allocation name, paths to the error and output files, email, and script location match your configuration.
+I have provided a sample .pbs script in this repository that runs the python script described above on the HPC resource with the command
+```
+qsub parcels.pbs
+``` 
+Make sure the allocation name, paths to the error and output files, email, and script location match your configuration.
