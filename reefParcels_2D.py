@@ -8,9 +8,9 @@ from parcels import AdvectionRK4, ErrorCode, FieldSet, JITParticle, ParticleFile
 filenames =  "/work/wtorres/particles/*nc"
 ds = xr.open_mfdataset(filenames, chunks={'ocean_time': 12}, combine="by_coords", parallel=True, decode_times = False)
 
-x = Ds['x_psi'].values
-y = Ds['y_psi'].values
-t = Ds['ocean_time'].values
+x = ds['x_psi'].values
+y = ds['y_psi'].values
+t = ds['ocean_time'].values
 
 #non-redundant dims: xi_rho (center), eta_rho (center), xi_u (inner), eta_v (inner)
 ds = ds.rename({'eta_u': 'eta_rho', 'xi_v': 'xi_rho', 'xi_psi': 'xi_u', 'eta_psi': 'eta_v'})
