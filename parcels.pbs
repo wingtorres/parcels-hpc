@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -q workq
+#PBS -A hpc_sel_smic_1
+#PBS -l nodes=1:ppn=20
+#PBS -l walltime=00:10:00  
+#PBS -N parcels
+#PBS -o /home/wtorres/COAWST/Scripts/jobs/parcels.out
+#PBS -e /home/wtorres/COAWST/Scripts/jobs/parcels.err
+#PBS -m abe
+#PBS -M walter.torres@duke.edu
+
+source activate parcels_mpi #activate environment
+ulimit -s unlimited #may not be necessary
+mpirun -machinefile $PBS_NODEFILE -np 20 python ~/COAWST/Scripts/jobs/reefParcels.py
