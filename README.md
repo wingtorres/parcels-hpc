@@ -20,10 +20,6 @@ from parcels import AdvectionRK4, ErrorCode, FieldSet, JITParticle, ParticleFile
 ```
 filenames =  "/work/wtorres/particles/*nc"
 ds = xr.open_mfdataset(filenames, chunks={'ocean_time': 12}, combine="by_coords", parallel=True, decode_times = False)
-
-x = ds['x_psi'].values
-y = ds['y_psi'].values
-t = ds['ocean_time'].values
 ```
 
 where chunk size can be adjusted to improve performance. From the xarray [docs](http://xarray.pydata.org/en/stable/dask.html#chunking-and-performance)...
@@ -42,23 +38,35 @@ coords={'xi':{'center':'xi_rho', 'inner':'xi_u'},
 grid = xgcm.Grid(ds, coords=coords)
 ```
 
-4) Interpolate the horizontal velocity components to ψ points (check out https://www.myroms.org/wiki/Numerical_Solution_Technique for more details on the discretization), and compute the Lagrangian velocity as a sum of the Eulerian and Stokes velocities. The depth-averaged velocity is used here to keep the example in 2D.
+4) Calculate Lagrangian velocities. The depth-averaged velocity is used here to keep the example in 2D.
 
 ```
-#velocity to psi points
-ds['ubar_lagrangian'] = ds['ubar'] + ds['ubar_stokes']
-ds['vbar_lagrangian'] = ds['vbar'] + ds['vbar_stokes']
+#Calculate Lagrangian velocity
+ds['ubar_lagrangian'] = ds['ubar'] + ds['u_stokes']
+ds['vbar_lagrangian'] = ds['v'] + ds['v_stokes']
+```
 
+4.5) If applicable, orient Lagrangian velocities eastward/northward, requiring an interpolation to psi points Here, ds.angle is the grid angle
+
+```
 ds['ubar_lagrangian_psi'] = grid.interp(ds.ubar_lagrangian, 'eta')
 ds['vbar_lagrangian_psi'] = grid.interp(ds.vbar_lagrangian, 'xi')
+ds['angle_psi'] = grid.interp(grid.interp(ds.angle,'eta'), 'psi')
+ds['uveitheta'] = (ds.u_lagrangian_psi + 1j*ds.v_lagrangian_psi)*np.exp(1j*ds.angle_psi) 
+ds['u_lagrangian_psi'] = np.real(ds.uveitheta)
+ds['v_lagrangian_psi'] = np.imag(ds.uveitheta)
 ```
 
-5) Define a Parcels [Fieldset](http://oceanparcels.org/gh-pages/html/#module-parcels.fieldset) from the lagrangian velocity field and horizontal coordinates of ψ points. Even if the grid is in meters, the dimensions must be named 'lon' and 'lat' for consistency.
+
+5) Define a Parcels [Fieldset](http://oceanparcels.org/gh-pages/html/#module-parcels.fieldset) from the xarray dataset object. The velocities can be on different grid like for an Arakawa-C grid, just make sure the dimensions dictionary is consistent with how the variables are referenced.
 
 ```
-data = {'U': da.ubar_lagrangian_psi.values, 'V': ds.vbar_lagrangian_psi.values}
-dimensions = {'lon': x, 'lat': y, 'time': t }
-fieldset = FieldSet.from_data(data, dimensions, transpose = False, mesh = 'flat') #mesh = 'flat' for cartesian, 'spherical' for curvilinear 
+variables = {'U': 'u_lagrangian',
+             'V': 'v_lagrangian'}
+
+dimensions = {'U': {'lon': 'lon_u', 'lat': 'lat_u', 'depth': 's_rho', 'time': 'ocean_time'},
+              'V': {'lon': 'lon_v', 'lat': 'lat_v', 'depth': 's_rho', 'time': 'ocean_time'}}
+fieldset = FieldSet.from_xarray_dataset(ds, variables = variables, dimensions = dimensions, mesh = 'spherical')
 ```
 
 6) Define a recovery kernel to handle particles going out of bounds
@@ -72,9 +80,14 @@ recovery = {ErrorCode.ErrorOutOfBounds: DeleteParticle,
             ErrorCode.ErrorThroughSurface: DeleteParticle}
 ```
 
-7) Initialize a Parcels [Particleset](http://oceanparcels.org/gh-pages/html/#module-parcels.particleset). Here I seed 1000 particles along the line y = 1000m, although there are several other ways to do this.
+7) Initialize a Parcels [Particleset](http://oceanparcels.org/gh-pages/html/#module-parcels.particleset). Here I seed the whole domain with equally spaced particles
+
 ```
-pset = ParticleSet.from_line(fieldset = fieldset, size = 1000, start = (1000, 1000), finish = (8000,1000), pclass = JITParticle )
+lon = np.linspace(ds.lon_rho.min(), ds.lon_rho.max(), num=2**5)
+lat = np.linspace(ds.lat_rho.min(), ds.lat_rho.max(), num=2**5) 
+lons, lats = np.meshgrid(lon,lat)
+
+pset = ParticleSet.from_list(fieldset = fieldset, pclass = JITParticle, time = ds.ocean_time.values[0], lon = lons, lat = lats, depth = depth )
 ```
 
 8) Specify advection kernel (4th order Runge-Kutta is selected here), choose name and output time step for particle locations, and execute Parcels
