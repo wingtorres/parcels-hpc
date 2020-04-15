@@ -53,8 +53,8 @@ ds['ubar_lagrangian_psi'] = grid.interp(ds.ubar_lagrangian, 'eta')
 ds['vbar_lagrangian_psi'] = grid.interp(ds.vbar_lagrangian, 'xi')
 ds['angle_psi'] = grid.interp(grid.interp(ds.angle,'eta'), 'psi')
 ds['uveitheta'] = (ds.u_lagrangian_psi + 1j*ds.v_lagrangian_psi)*np.exp(1j*ds.angle_psi) 
-ds['u_lagrangian_psi'] = np.real(ds.uveitheta)
-ds['v_lagrangian_psi'] = np.imag(ds.uveitheta)
+ds['ubar_lagrangian_psi'] = np.real(ds.uveitheta)
+ds['vbar_lagrangian_psi'] = np.imag(ds.uveitheta)
 ```
 
 
