@@ -8,10 +8,6 @@ from parcels import AdvectionRK4, ErrorCode, FieldSet, JITParticle, ParticleFile
 filenames =  "/work/wtorres/particles/*nc"
 ds = xr.open_mfdataset(filenames, chunks={'ocean_time': 12}, combine="by_coords", parallel=True, decode_times = False)
 
-x = ds['x_psi'].values
-y = ds['y_psi'].values
-t = ds['ocean_time'].values
-
 #non-redundant dims: xi_rho (center), eta_rho (center), xi_u (inner), eta_v (inner)
 ds = ds.rename({'eta_u': 'eta_rho', 'xi_v': 'xi_rho', 'xi_psi': 'xi_u', 'eta_psi': 'eta_v'})
 
@@ -21,16 +17,23 @@ coords={'xi':{'center':'xi_rho', 'inner':'xi_u'},
 
 grid = xgcm.Grid(ds, coords=coords)
 
-#velocity to psi points
-ds['ubar_lagrangian'] = ds['ubar'] + ds['ubar_stokes']
-ds['vbar_lagrangian'] = ds['vbar'] + ds['vbar_stokes']
+#Calculate Lagrangian velocity
+ds['u_lagrangian'] = ds['u'] + ds['u_stokes']
+ds['v_lagrangian'] = ds['v'] + ds['v_stokes']
 
-ds['ubar_lagrangian_psi'] = grid.interp(ds.ubar_lagrangian, 'eta')
-ds['vbar_lagrangian_psi'] = grid.interp(ds.vbar_lagrangian, 'xi')
+#If applicable, orient Lagrangian velocity eastward/northward. ds.angle is the grid angle.
+# ds['angle_psi'] = grid.interp(grid.interp(ds.angle,'eta'), 'psi')
+# ds['uveitheta'] = (ds.u_lagrangian_psi + 1j*ds.v_lagrangian_psi)*np.exp(1j*ds.angle_psi) 
+# ds['u_lagrangian '] = np.real(ds.uveitheta)
+# ds['v_lagrangian'] = np.imag(ds.uveitheta)
 
-data = {'U': ds.ubar_lagrangian_psi.values, 'V': ds.vbar_lagrangian_psi.values}
-dimensions = {'lon': x, 'lat': y, 'time': t }
-fieldset = FieldSet.from_data(data, dimensions, transpose = False, mesh = 'flat') 
+variables = {'U': 'u_lagrangian',
+             'V': 'v_lagrangian'}
+
+dimensions = {'U': {'lon': 'lon_u', 'lat': 'lat_u', 'depth': 's_rho', 'time': 'ocean_time'},
+              'V': {'lon': 'lon_v', 'lat': 'lat_v', 'depth': 's_rho', 'time': 'ocean_time'}}
+
+fieldset = FieldSet.from_xarray_dataset(ds, variables = variables, dimensions = dimensions, mesh = 'spherical', allow_time_extrapolation = True)
 
 def DeleteParticle(particle, fieldset, time):
     print("Deleting particle")
