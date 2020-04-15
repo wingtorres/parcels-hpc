@@ -46,7 +46,7 @@ ds['ubar_lagrangian'] = ds['ubar'] + ds['ubar_stokes']
 ds['vbar_lagrangian'] = ds['vbar'] + ds['vbar_stokes']
 ```
 
-4.5) If applicable, orient Lagrangian velocities eastward/northward, requiring an interpolation to psi points Here, ds.angle is the grid angle.
+4.5) If applicable, orient Lagrangian velocities eastward/northward, requiring an interpolation to a common coordinate if necessary. On the staggered Arakawa-C grid used in ROMS, it is best to interpolate the velocities to ψ-points - see https://www.myroms.org/wiki/Numerical_Solution_Technique for more details on the discretization. Here, ds.angle is the grid angle.
 
 ```
 ds['ubar_lagrangian_psi'] = grid.interp(ds.ubar_lagrangian, 'eta')
