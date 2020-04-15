@@ -42,11 +42,11 @@ grid = xgcm.Grid(ds, coords=coords)
 
 ```
 #Calculate Lagrangian velocity
-ds['ubar_lagrangian'] = ds['ubar'] + ds['u_stokes']
-ds['vbar_lagrangian'] = ds['v'] + ds['v_stokes']
+ds['ubar_lagrangian'] = ds['ubar'] + ds['ubar_stokes']
+ds['vbar_lagrangian'] = ds['vbar'] + ds['vbar_stokes']
 ```
 
-4.5) If applicable, orient Lagrangian velocities eastward/northward, requiring an interpolation to psi points Here, ds.angle is the grid angle
+4.5) If applicable, orient Lagrangian velocities eastward/northward, requiring an interpolation to psi points Here, ds.angle is the grid angle.
 
 ```
 ds['ubar_lagrangian_psi'] = grid.interp(ds.ubar_lagrangian, 'eta')
@@ -61,8 +61,8 @@ ds['v_lagrangian_psi'] = np.imag(ds.uveitheta)
 5) Define a Parcels [Fieldset](http://oceanparcels.org/gh-pages/html/#module-parcels.fieldset) from the xarray dataset object. The velocities can be on different grid like for an Arakawa-C grid, just make sure the dimensions dictionary is consistent with how the variables are referenced.
 
 ```
-variables = {'U': 'u_lagrangian',
-             'V': 'v_lagrangian'}
+variables = {'U': 'ubar_lagrangian',
+             'V': 'vbar_lagrangian'}
 
 dimensions = {'U': {'lon': 'lon_u', 'lat': 'lat_u', 'depth': 's_rho', 'time': 'ocean_time'},
               'V': {'lon': 'lon_v', 'lat': 'lat_v', 'depth': 's_rho', 'time': 'ocean_time'}}
