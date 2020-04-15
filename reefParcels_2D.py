@@ -42,7 +42,12 @@ def DeleteParticle(particle, fieldset, time):
 recovery = {ErrorCode.ErrorOutOfBounds: DeleteParticle,
             ErrorCode.ErrorThroughSurface: DeleteParticle}
 
-pset = ParticleSet.from_line(fieldset = fieldset, size = 1000, start = (1000, 1000), finish = (8000,1000), pclass = JITParticle )
+#cover domain in particles
+lon = np.linspace(ds.lon_rho.min(), ds.lon_rho.max(), num=2**6)
+lat = np.linspace(ds.lat_rho.min(), ds.lat_rho.max(), num=2**6) 
+lons, lats = np.meshgrid(lon,lat)
+
+pset = ParticleSet.from_list(fieldset = fieldset, pclass = JITParticle, time = ds.ocean_time.values[0], lon = lons, lat = lats, depth = depth )
 
 kernels = AdvectionRK4 
 output_file = pset.ParticleFile(name= "/work/wtorres/temp/reefParticles", outputdt = delta(seconds = 60) )
